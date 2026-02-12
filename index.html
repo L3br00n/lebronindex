@@ -1322,25 +1322,26 @@ async function blankcurrentgame() {
     }
 
     try {
-        // Fetch the content of the iframe
         const response = await fetch(frame.src);
         if (!response.ok) throw new Error('Failed to fetch game content');
 
-        const htmlContent = await response.text();
+        let htmlContent = await response.text();
 
-        // Open a new blank tab
+        // Inject <base> so relative paths work
+        const url = new URL(frame.src);
+        const baseTag = `<base href="${url.origin + url.pathname.substring(0, url.pathname.lastIndexOf('/') + 1)}">`;
+        htmlContent = htmlContent.replace(/<head>/i, `<head>${baseTag}`);
+
         const newTab = window.open('about:blank', '_blank');
         if (!newTab) {
             alert('Popup blocked. Please allow popups for this site.');
             return;
         }
 
-        // Write the HTML content into the new tab
         newTab.document.open();
         newTab.document.write(htmlContent);
         newTab.document.close();
 
-        // Optional: Analytics tracking
         if (typeof gtag !== 'undefined') {
             gtag('event', 'open_blank', {
                 event_category: 'game_interaction',
@@ -1354,6 +1355,7 @@ async function blankcurrentgame() {
         alert('Could not open the game in a new tab.');
     }
 }
+
 
 async function downloadCurrentGame() {
     const frame = document.getElementById('gameFrame');
@@ -2675,7 +2677,7 @@ function setFavicon(iconUrl) {
 function updateTitle() {
     if (!document.hidden) {
         currentSubject = getRandomSubject();
-        document.title = `Noahs Tutoring | ${currentSubject}`;
+        document.title = `Lebron`;
     } else {
         document.title = "Home";
     }
@@ -2695,7 +2697,7 @@ document.addEventListener('visibilitychange', function() {
         setFavicon(inactiveIcon);
     } else {
         currentSubject = getRandomSubject();
-        document.title = `Noahs Tutoring | ${currentSubject}`;
+        document.title = `Lebron`;
         setFavicon(activeIcon);
     }
 });
@@ -2703,7 +2705,7 @@ document.addEventListener('visibilitychange', function() {
 setInterval(function() {
     if (!document.hidden) {
         currentSubject = getRandomSubject();
-        document.title = `Noahs Tutoring | ${currentSubject}`;
+        document.title = `Lebron`;
     }
 }, 30000);
 
