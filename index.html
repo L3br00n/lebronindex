@@ -67,6 +67,7 @@
         .lesson-title{font-size:1.3rem;color:var(--light-text);margin-bottom:8px}
         .lesson-desc{color:var(--gray-text);margin-bottom:12px;font-size:.9rem;min-height:40px}
         .launch-command{color:var(--primary-orange);font-size:.9rem;font-weight:bold;padding:5px 10px;border:1px solid var(--primary-orange);border-radius:3px;transition:all .3s}
+        .aboutblank{color:var(--primary-orange);font-size:.9rem;font-weight:bold;padding:5px 10px;border:1px solid var(--primary-orange);border-radius:3px;transition:all .3s}
         .lesson-card:hover .launch-command{background:rgba(var(--primary-orange-rgb),.1);box-shadow:0 0 10px var(--primary-orange)}
         footer{text-align:center;padding:30px 0;margin-top:40px;border-top:1px solid var(--primary-orange);color:var(--gray-text);font-size:.9rem}
         .glow{text-shadow:0 0 5px currentColor}
@@ -823,6 +824,7 @@ body::-webkit-scrollbar,
     <button class="btn refresh-btn" onclick="refreshGame()" title="Refresh Game"><i class="fas fa-redo"></i> Refresh</button>
     <button class="btn" onclick="toggleFullscreen()"><i class="fas fa-expand"></i> Fullscreen</button>
     <button class="btn" onclick="downloadCurrentGame()"><i class="fas fa-download"></i> Download</button>
+    <button class="btn" onclick="blankcurrentgame()"> About:Blank</button>
     <button class="btn" onclick="closeLesson()"><i class="fas fa-times"></i> Exit</button>
 </div>
         </div>
@@ -1308,6 +1310,48 @@ function toggleFullscreen() {
             document.mozCancelFullScreen();
         }
         frame.classList.remove('fullscreen');
+    }
+}
+async function blankcurrentgame() {
+    const frame = document.getElementById('gameFrame');
+    const title = document.getElementById('gameTitle')?.textContent || 'Unknown Game';
+
+    if (!frame || !frame.src) {
+        alert('No game is currently loaded to open.');
+        return;
+    }
+
+    try {
+        // Fetch the content of the iframe
+        const response = await fetch(frame.src);
+        if (!response.ok) throw new Error('Failed to fetch game content');
+
+        const htmlContent = await response.text();
+
+        // Open a new blank tab
+        const newTab = window.open('about:blank', '_blank');
+        if (!newTab) {
+            alert('Popup blocked. Please allow popups for this site.');
+            return;
+        }
+
+        // Write the HTML content into the new tab
+        newTab.document.open();
+        newTab.document.write(htmlContent);
+        newTab.document.close();
+
+        // Optional: Analytics tracking
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'open_blank', {
+                event_category: 'game_interaction',
+                event_label: title,
+                value: 1
+            });
+        }
+
+    } catch (err) {
+        console.error('Error opening game in blank tab:', err);
+        alert('Could not open the game in a new tab.');
     }
 }
 
@@ -2631,7 +2675,7 @@ function setFavicon(iconUrl) {
 function updateTitle() {
     if (!document.hidden) {
         currentSubject = getRandomSubject();
-        document.title = `Lebron Launcher`;
+        document.title = `Noahs Tutoring | ${currentSubject}`;
     } else {
         document.title = "Home";
     }
@@ -2651,7 +2695,7 @@ document.addEventListener('visibilitychange', function() {
         setFavicon(inactiveIcon);
     } else {
         currentSubject = getRandomSubject();
-        document.title = `Lebron Launcher`;
+        document.title = `Noahs Tutoring | ${currentSubject}`;
         setFavicon(activeIcon);
     }
 });
@@ -2659,7 +2703,7 @@ document.addEventListener('visibilitychange', function() {
 setInterval(function() {
     if (!document.hidden) {
         currentSubject = getRandomSubject();
-        document.title = `Lebron Launcher`;
+        document.title = `Noahs Tutoring | ${currentSubject}`;
     }
 }, 30000);
 
